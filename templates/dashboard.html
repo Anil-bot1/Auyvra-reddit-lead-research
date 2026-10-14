@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auyvra Lead Research Dashboard | AI Automation Agency</title>
+    
+    <!-- Tailwind CSS (Modern CDN) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            dark: '#0B0F19',
+                            card: '#111827',
+                            border: '#1E293B',
+                            accent: '#38BDF8',
+                            teal: '#2DD4BF',
+                            indigo: '#6366F1'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <link rel="stylesheet" href="/static/css/custom.css">
+</head>
+<body class="bg-[#0B0F19] text-slate-100 min-h-screen flex flex-col font-sans">
+
+    <!-- Top Navigation Header -->
+    <header class="border-b border-slate-800 bg-[#0F172A]/90 sticky top-0 z-40 backdrop-blur">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="h-9 w-9 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center font-bold text-white shadow-lg shadow-cyan-500/20">
+                    A
+                </div>
+                <div>
+                    <div class="flex items-center space-x-2">
+                        <span class="font-bold text-lg tracking-tight text-white">Auyvra</span>
+                        <span class="text-xs px-2 py-0.5 rounded bg-blue-950 text-blue-400 border border-blue-800 font-mono">Lead Research OS</span>
+                    </div>
+                    <p class="text-[11px] text-slate-400">AI Automation Agency • Client Discovery & Qualification</p>
+                </div>
+            </div>
+
+            <!-- Status Indicator Pills -->
+            <div class="hidden md:flex items-center space-x-3 text-xs">
+                <!-- Reddit API Status -->
+                <div class="flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-slate-900 border border-amber-500/30 text-amber-300" title="Reddit commercial API access is pending authorization. Manual research mode active.">
+                    <span class="h-2 w-2 rounded-full bg-amber-400 animate-pulse"></span>
+                    <span>Source: Manual Research Mode</span>
+                </div>
+
+                <!-- Sheets Status -->
+                <button onclick="openSheetsModal()" class="flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-slate-900 border border-slate-700 text-slate-300 hover:border-slate-500 transition">
+                    <i data-lucide="sheet" class="w-3.5 h-3.5 text-teal-400"></i>
+                    <span id="nav-sheets-status">Google Sheets: Checking...</span>
+                </button>
+
+                <!-- Timezone -->
+                <div class="px-2.5 py-1 rounded-full bg-slate-900 border border-slate-800 text-slate-400">
+                    <span>Asia/Kolkata (IST)</span>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex items-center space-x-2">
+                <button onclick="openAddLeadModal()" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-md shadow-blue-600/20 transition">
+                    <i data-lucide="plus" class="w-4 h-4"></i>
+                    <span>Add Lead</span>
+                </button>
+
+                <button onclick="openParseModal()" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-medium transition">
+                    <i data-lucide="sparkles" class="w-4 h-4 text-cyan-400"></i>
+                    <span class="hidden sm:inline">Parse Notes</span>
+                </button>
+
+                <button onclick="openImportModal()" class="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 text-xs font-medium transition">
+                    <i data-lucide="upload" class="w-4 h-4 text-slate-300"></i>
+                    <span class="hidden sm:inline">CSV Import</span>
+                </button>
+
+                <button onclick="openReportModal()" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-300 transition" title="Daily Digest Report">
+                    <i data-lucide="mail" class="w-4 h-4"></i>
+                </button>
+
+                <button onclick="triggerSheetsSync()" class="p-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-teal-400 transition" title="Sync to Google Sheets">
+                    <i data-lucide="refresh-cw" class="w-4 h-4" id="sync-icon"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Dashboard Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+        <!-- Target Tracker & Daily Progress Bar -->
+        <div class="card-saas p-4 bg-gradient-to-r from-slate-900 via-slate-900 to-[#131d33] border-slate-800">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                    <div class="flex items-center space-x-2">
+                        <span class="px-2 py-0.5 rounded text-[11px] font-bold bg-cyan-950 text-cyan-400 border border-cyan-800 uppercase tracking-wider">Daily Research Target</span>
+                        <span id="target-date-display" class="text-xs text-slate-400">Target Date: Today (Asia/Kolkata)</span>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-1">Targeting ~20 relevant operational problem reviews daily to shortlist up to 5 high-converting prospects.</p>
+                </div>
+
+                <!-- Progress Meters -->
+                <div class="flex items-center gap-6">
+                    <!-- Reviewed Target -->
+                    <div class="w-36">
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-slate-400">Reviewed</span>
+                            <span id="target-reviewed-txt" class="font-bold text-white">0 / 20</span>
+                        </div>
+                        <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+                            <div id="target-reviewed-bar" class="bg-blue-500 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                    </div>
+
+                    <!-- Shortlisted Target -->
+                    <div class="w-36">
+                        <div class="flex justify-between text-xs mb-1">
+                            <span class="text-slate-400">Qualified</span>
+                            <span id="target-qualified-txt" class="font-bold text-emerald-400">0 / 5</span>
+                        </div>
+                        <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+                            <div id="target-qualified-bar" class="bg-emerald-500 h-2 rounded-full transition-all duration-500" style="width: 0%"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Metric KPI Cards -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="card-saas p-4">
+                <div class="flex items-center justify-between text-slate-400 text-xs">
+                    <span>Total Discussions</span>
+                    <i data-lucide="layers" class="w-4 h-4 text-blue-400"></i>
+                </div>
+                <div class="text-2xl font-bold text-white mt-2" id="kpi-total-leads">0</div>
+                <div class="text-[11px] text-slate-400 mt-1">Discussions documented</div>
+            </div>
+
+            <div class="card-saas p-4">
+                <div class="flex items-center justify-between text-slate-400 text-xs">
+                    <span>Qualified Leads</span>
+                    <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i>
+                </div>
+                <div class="text-2xl font-bold text-emerald-400 mt-2" id="kpi-qualified-leads">0</div>
+                <div class="text-[11px] text-slate-400 mt-1">High fit for Auyvra services</div>
+            </div>
+
+            <div class="card-saas p-4">
+                <div class="flex items-center justify-between text-slate-400 text-xs">
+                    <span>Awaiting Review</span>
+                    <i data-lucide="clock" class="w-4 h-4 text-amber-400"></i>
+                </div>
+                <div class="text-2xl font-bold text-amber-400 mt-2" id="kpi-review-leads">0</div>
+                <div class="text-[11px] text-slate-400 mt-1">Needs qualification review</div>
+            </div>
+
+            <div class="card-saas p-4">
+                <div class="flex items-center justify-between text-slate-400 text-xs">
+                    <span>Avg Lead Score</span>
+                    <i data-lucide="award" class="w-4 h-4 text-cyan-400"></i>
+                </div>
+                <div class="text-2xl font-bold text-cyan-400 mt-2" id="kpi-avg-score">0.0</div>
+                <div class="text-[11px] text-slate-400 mt-1">Scale 0 to 100</div>
+            </div>
+        </div>
+
+        <!-- Analytics Visualizations -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <!-- Industries Chart -->
+            <div class="card-saas p-4">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-300">Target Verticals</h3>
+                    <i data-lucide="briefcase" class="w-4 h-4 text-slate-400"></i>
+                </div>
+                <div class="h-44 relative">
+                    <canvas id="industryChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Country Breakdown -->
+            <div class="card-saas p-4">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-300">Geographic Markets</h3>
+                    <i data-lucide="globe" class="w-4 h-4 text-slate-400"></i>
+                </div>
+                <div class="h-44 relative">
+                    <canvas id="countryChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Score Distribution -->
+            <div class="card-saas p-4">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-xs font-semibold uppercase tracking-wider text-slate-300">Score Tiers</h3>
+                    <i data-lucide="bar-chart-3" class="w-4 h-4 text-slate-400"></i>
+                </div>
+                <div class="h-44 relative">
+                    <canvas id="scoreChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filter & Search Toolbar -->
+        <div class="card-saas p-4 space-y-3">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-3">
+                <!-- Search Input -->
+                <div class="relative w-full md:w-80">
+                    <i data-lucide="search" class="w-4 h-4 absolute left-3 top-3 text-slate-400"></i>
+                    <input type="text" id="filter-search" placeholder="Search discussion title, problem, notes..." 
+                           class="w-full pl-9 pr-4 py-2 bg-slate-900 border border-slate-700 rounded-lg text-xs text-white placeholder-slate-400 focus:outline-none focus:border-blue-500">
+                </div>
+
+                <!-- Export & Quick Actions -->
+                <div class="flex items-center space-x-2 w-full md:w-auto justify-end">
+                    <button onclick="exportLeads('csv')" class="px-2.5 py-1.5 rounded bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs text-slate-300 flex items-center space-x-1">
+                        <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                        <span>Export CSV</span>
+                    </button>
+                    <button onclick="resetFilters()" class="px-2.5 py-1.5 rounded bg-slate-800 hover:bg-slate-700 border border-slate-700 text-xs text-slate-400">
+                        Reset Filters
+                    </button>
+                </div>
+            </div>
+
+            <!-- Filter Dropdowns Row -->
+            <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-2 text-xs">
+                <div>
+                    <label class="block text-[10px] uppercase text-slate-400 mb-1">Status</label>
+                    <select id="filter-status" class="w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-slate-200">
+                        <option value="All">All Statuses</option>
+                        <option value="Qualified">🟢 Qualified</option>
+                        <option value="Awaiting Review">🟡 Awaiting Review</option>
+                        <option value="Disqualified">🔴 Disqualified</option>
+                        <option value="Contacted">🔵 Contacted</option>
+                        <option value="Converted">⭐ Converted</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-[10px] uppercase text-slate-400 mb-1">Target Vertical</label>
+                    <select id="filter-industry" class="w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-slate-200">
+                        <option value="All">All Industries</option>
+                        <option value="Dental Practice">Dental Practice</option>
+                        <option value="Clinic / Healthcare">Clinic / Healthcare</option>
+                        <option value="Restaurant / Catering">Restaurant / Catering</option>
+                        <option value="Real Estate">Real Estate</option>
+                        <option value="Home Services">Home Services (HVAC/Plumbing)</option>
+                        <option value="Agency">Agency</option>
+                        <option value="Professional Services">Professional Services</option>
+                        <option value="SMB / General">SMB / General</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-[10px] uppercase text-slate-400 mb-1">Country</label>
+                    <select id="filter-country" class="w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-slate-200">
+                        <option value="All">All Countries</option>
+                        <option value="India">India</option>
+                        <option value="United States">United States</option>
+                        <option value="United Kingdom">United Kingdom</option>
+                        <option value="Canada">Canada</option>
+                        <option value="Australia">Australia</option>
+                        <option value="New Zealand">New Zealand</option>
+                        <option value="Ireland">Ireland</option>
+                        <option value="Germany">Germany</option>
+                        <option value="France">France</option>
+                        <option value="Netherlands">Netherlands</option>
+                        <option value="Spain">Spain</option>
+                        <option value="Switzerland">Switzerland</option>
+                        <option value="Sweden">Sweden</option>
+                        <option value="Norway">Norway</option>
+                        <option value="Denmark">Denmark</option>
+                        <option value="Unknown">Unknown / Global</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-[10px] uppercase text-slate-400 mb-1">Auyvra Service</label>
+                    <select id="filter-service" class="w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-slate-200">
+                        <option value="All">All Services</option>
+                        <option value="AI Receptionist / Voice Agent">AI Receptionist / Voice Agent</option>
+                        <option value="Automated Appointment Booking">Automated Appointment Booking</option>
+                        <option value="Customer Enquiry Handling / Chatbot">Customer Enquiry / Chatbot</option>
+                        <option value="Follow-up Automation">Follow-up Automation</option>
+                        <option value="Business Workflow Automation">Workflow Automation</option>
+                        <option value="AI Lead Generation & Qualification">Lead Gen & Qualification</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-[10px] uppercase text-slate-400 mb-1">Min Score</label>
+                    <select id="filter-min-score" class="w-full bg-slate-900 border border-slate-700 rounded p-1.5 text-slate-200">
+                        <option value="0">Any Score</option>
+                        <option value="70">70+ (High Intent)</option>
+                        <option value="50">50+ (Moderate)</option>
+                        <option value="30">30+</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filterable Leads Table -->
+        <div class="card-saas overflow-hidden">
+            <div class="p-4 border-b border-slate-800 flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <h2 class="text-sm font-semibold text-white">Discovered Leads & Research Opportunities</h2>
+                    <span id="leads-count-badge" class="px-2 py-0.5 rounded-full text-xs bg-slate-800 text-slate-300 font-mono">0 records</span>
+                </div>
+                <div class="text-xs text-slate-400">Click any row to inspect full details, scoring audit & reply draft</div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="saas-table">
+                    <thead>
+                        <tr>
+                            <th style="width: 80px;" class="text-center">Score</th>
+                            <th>Discussion & Problem</th>
+                            <th>Vertical & Region</th>
+                            <th>Matching Service</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th class="text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leads-table-body">
+                        <tr>
+                            <td colspan="7" class="text-center py-12 text-slate-400">
+                                <i data-lucide="loader-2" class="w-6 h-6 animate-spin mx-auto mb-2 text-blue-400"></i>
+                                Loading leads...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800 bg-[#0F172A] py-4 text-center text-xs text-slate-400">
+        <p>Auyvra Lead Research Dashboard • Built for Auyvra AI Automation Agency • Render Production Ready</p>
+    </footer>
+
+    <!-- ======================================================== -->
+    <!-- MODALS SECTION -->
+    <!-- ======================================================== -->
+
+    <!-- Lead Detail & Inspector Modal -->
+    <div id="leadDetailModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 modal-overlay overflow-y-auto">
+        <div class="bg-[#111827] border border-slate-700 rounded-xl max-w-3xl w-full max-h-[90vh] flex flex-col shadow-2xl">
+            <!-- Modal Header -->
+            <div class="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-900/60">
+                <div class="flex items-center space-x-2">
+                    <span id="modal-lead-score-badge" class="px-2 py-0.5 rounded text-xs font-bold font-mono">--</span>
+                    <span id="modal-lead-status-badge" class="px-2 py-0.5 rounded text-xs font-semibold">--</span>
+                    <span id="modal-lead-source" class="text-xs text-slate-400">Source</span>
+                </div>
+                <button onclick="closeModal('leadDetailModal')" class="text-slate-400 hover:text-white">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Modal Content (Scrollable) -->
+            <div class="p-6 overflow-y-auto space-y-6 flex-1 text-sm">
+                <!-- Discussion Title & Link -->
+                <div>
+                    <h3 id="modal-lead-title" class="text-lg font-bold text-white mb-1"></h3>
+                    <a id="modal-lead-url" href="#" target="_blank" class="text-xs text-blue-400 hover:underline flex items-center space-x-1">
+                        <span id="modal-lead-url-txt"></span>
+                        <i data-lucide="external-link" class="w-3 h-3"></i>
+                    </a>
+                </div>
+
+                <!-- Problem Statement -->
+                <div class="bg-slate-900/70 p-4 rounded-lg border border-slate-800">
+                    <label class="block text-xs font-semibold uppercase text-slate-400 mb-2">Stated Operational Problem</label>
+                    <p id="modal-lead-problem" class="text-slate-200 leading-relaxed whitespace-pre-wrap"></p>
+                </div>
+
+                <!-- Business Categorization & Auyvra Match -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-900/40 p-4 rounded-lg border border-slate-800">
+                    <div>
+                        <span class="block text-xs text-slate-400">Target Vertical</span>
+                        <span id="modal-lead-industry" class="font-semibold text-white"></span>
+                    </div>
+                    <div>
+                        <span class="block text-xs text-slate-400">Country / Region</span>
+                        <div class="flex items-center space-x-1 mt-0.5">
+                            <span id="modal-lead-country" class="font-semibold text-white"></span>
+                            <span id="modal-lead-country-badge" class="text-[10px] px-1.5 py-0.2 rounded bg-slate-800 text-slate-400"></span>
+                        </div>
+                    </div>
+                    <div>
+                        <span class="block text-xs text-slate-400">Matching Auyvra Service</span>
+                        <span id="modal-lead-service" class="font-semibold text-cyan-400"></span>
+                    </div>
+                </div>
+
+                <!-- Transparent Score Breakdown -->
+                <div class="bg-slate-900/70 p-4 rounded-lg border border-slate-800 space-y-3">
+                    <div class="flex items-center justify-between">
+                        <label class="block text-xs font-semibold uppercase text-slate-400">Transparent Scoring Audit (0–100)</label>
+                        <span id="modal-lead-score-total" class="font-mono text-cyan-400 font-bold"></span>
+                    </div>
+                    
+                    <div id="modal-lead-score-reasons" class="space-y-1 text-xs text-slate-300"></div>
+                </div>
+
+                <!-- Editable Fields: Status, Manual Score, Notes -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Qualification Status</label>
+                        <select id="modal-edit-status" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white text-xs">
+                            <option value="Qualified">🟢 Qualified</option>
+                            <option value="Awaiting Review">🟡 Awaiting Review</option>
+                            <option value="Disqualified">🔴 Disqualified</option>
+                            <option value="Contacted">🔵 Contacted</option>
+                            <option value="Converted">⭐ Converted</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Lead Score (Manual Override)</label>
+                        <input type="number" id="modal-edit-score" min="0" max="100" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white text-xs">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold uppercase text-slate-400 mb-1">Internal Research Notes</label>
+                    <textarea id="modal-edit-notes" rows="2" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white text-xs placeholder-slate-500" placeholder="Add custom notes, context, or outreach strategy..."></textarea>
+                </div>
+
+                <!-- Personalized Consultative Reply Draft -->
+                <div class="border border-blue-900/60 bg-blue-950/20 rounded-lg p-4 space-y-2">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center space-x-1.5">
+                            <i data-lucide="message-square" class="w-4 h-4 text-cyan-400"></i>
+                            <span class="text-xs font-bold text-white uppercase">Suggested Consultative Reply Draft</span>
+                        </div>
+                        <div class="flex items-center space-x-2">
+                            <span id="modal-response-approved-pill" class="text-[10px] px-2 py-0.5 rounded font-mono"></span>
+                            <button onclick="copyResponseDraft()" class="px-2.5 py-1 rounded bg-blue-600 hover:bg-blue-500 text-white text-xs font-medium flex items-center space-x-1">
+                                <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                                <span>Copy Draft</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <p class="text-[11px] text-amber-300/90 bg-amber-950/30 p-2 rounded border border-amber-900/40">
+                        ⚠️ <strong>Strict Rule:</strong> Every reply must be personally reviewed by you before outreach. Never automatically post or message.
+                    </p>
+
+                    <textarea id="modal-response-draft" rows="5" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-slate-200 text-xs leading-relaxed"></textarea>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="p-4 border-t border-slate-800 bg-slate-900/80 flex items-center justify-between">
+                <button onclick="deleteCurrentLead()" class="text-red-400 hover:text-red-300 text-xs font-medium flex items-center space-x-1">
+                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    <span>Delete Lead</span>
+                </button>
+                <div class="flex items-center space-x-2">
+                    <button onclick="closeModal('leadDetailModal')" class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs">
+                        Cancel
+                    </button>
+                    <button onclick="saveLeadDetails()" class="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold shadow-md shadow-blue-600/30">
+                        Save Changes
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Lead Manually Modal -->
+    <div id="addLeadModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 modal-overlay overflow-y-auto">
+        <div class="bg-[#111827] border border-slate-700 rounded-xl max-w-xl w-full p-6 space-y-4 shadow-2xl">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h3 class="text-base font-bold text-white flex items-center space-x-2">
+                    <i data-lucide="plus-circle" class="w-5 h-5 text-blue-400"></i>
+                    <span>Add Lead Manually</span>
+                </h3>
+                <button onclick="closeModal('addLeadModal')" class="text-slate-400 hover:text-white">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <form id="addLeadForm" onsubmit="submitAddLead(event)" class="space-y-3 text-xs">
+                <div>
+                    <label class="block text-slate-300 mb-1 font-medium">Discussion URL <span class="text-red-400">*</span></label>
+                    <input type="url" id="add-url" required placeholder="https://reddit.com/r/smallbusiness/comments/..." 
+                           class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white">
+                </div>
+
+                <div>
+                    <label class="block text-slate-300 mb-1 font-medium">Discussion Title / Topic <span class="text-red-400">*</span></label>
+                    <input type="text" id="add-title" required placeholder="e.g. Missing 30% of incoming customer calls during lunch rush" 
+                           class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white">
+                </div>
+
+                <div>
+                    <label class="block text-slate-300 mb-1 font-medium">Stated Operational Problem <span class="text-red-400">*</span></label>
+                    <textarea id="add-problem" rows="3" required placeholder="Paste the customer's stated bottleneck, call volume, or manual data entry challenge..." 
+                              class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white"></textarea>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div>
+                        <label class="block text-slate-300 mb-1">Target Vertical</label>
+                        <select id="add-industry" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white">
+                            <option value="SMB / General">Auto-detect from text</option>
+                            <option value="Dental Practice">Dental Practice</option>
+                            <option value="Clinic / Healthcare">Clinic / Healthcare</option>
+                            <option value="Restaurant / Catering">Restaurant / Catering</option>
+                            <option value="Real Estate">Real Estate</option>
+                            <option value="Home Services">Home Services</option>
+                            <option value="Agency">Agency</option>
+                            <option value="Professional Services">Professional Services</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label class="block text-slate-300 mb-1">Country / Region</label>
+                        <select id="add-country" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white">
+                            <option value="Unknown">Auto-detect from text</option>
+                            <option value="India">India</option>
+                            <option value="United States">United States</option>
+                            <option value="United Kingdom">United Kingdom</option>
+                            <option value="Canada">Canada</option>
+                            <option value="Australia">Australia</option>
+                            <option value="New Zealand">New Zealand</option>
+                            <option value="Ireland">Ireland</option>
+                            <option value="Germany">Germany</option>
+                            <option value="France">France</option>
+                            <option value="Netherlands">Netherlands</option>
+                            <option value="Spain">Spain</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-slate-300 mb-1">Author / Handle (Optional)</label>
+                    <input type="text" id="add-author" placeholder="e.g. u/business_owner" 
+                           class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white">
+                </div>
+
+                <div>
+                    <label class="block text-slate-300 mb-1">Internal Notes</label>
+                    <input type="text" id="add-notes" placeholder="Optional context or outreach plan..." 
+                           class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white">
+                </div>
+
+                <div class="pt-3 border-t border-slate-800 flex justify-end space-x-2">
+                    <button type="button" onclick="closeModal('addLeadModal')" class="px-4 py-2 rounded-lg bg-slate-800 text-slate-300">Cancel</button>
+                    <button type="submit" class="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-semibold shadow-md">Add & Score Lead</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Parse Notes Modal -->
+    <div id="parseModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 modal-overlay overflow-y-auto">
+        <div class="bg-[#111827] border border-slate-700 rounded-xl max-w-xl w-full p-6 space-y-4 shadow-2xl">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h3 class="text-base font-bold text-white flex items-center space-x-2">
+                    <i data-lucide="sparkles" class="w-5 h-5 text-cyan-400"></i>
+                    <span>Parse Freeform Research Notes</span>
+                </h3>
+                <button onclick="closeModal('parseModal')" class="text-slate-400 hover:text-white">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <p class="text-xs text-slate-400">Paste any raw post, Reddit discussion snippet, or message. The system will auto-extract the problem, match the Auyvra service, compute the 0–100 score, and generate a reply draft.</p>
+
+            <div class="space-y-3 text-xs">
+                <div>
+                    <label class="block text-slate-300 mb-1 font-medium">Discussion URL (Optional)</label>
+                    <input type="url" id="parse-url" placeholder="https://..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-2 text-white">
+                </div>
+
+                <div>
+                    <label class="block text-slate-300 mb-1 font-medium">Raw Notes / Discussion Snippet <span class="text-red-400">*</span></label>
+                    <textarea id="parse-raw-text" rows="5" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-white placeholder-slate-500" placeholder="Paste post text here..."></textarea>
+                </div>
+
+                <!-- Parse Results Preview -->
+                <div id="parse-results-box" class="hidden bg-slate-900/80 p-3 rounded-lg border border-slate-800 space-y-2">
+                    <div class="flex items-center justify-between">
+                        <span class="font-bold text-white" id="parse-res-title"></span>
+                        <span class="px-2 py-0.5 rounded text-[11px] font-bold" id="parse-res-score"></span>
+                    </div>
+                    <div class="text-[11px] text-slate-300">
+                        <strong>Match:</strong> <span id="parse-res-service" class="text-cyan-400"></span> • 
+                        <strong>Vertical:</strong> <span id="parse-res-industry"></span> • 
+                        <strong>Country:</strong> <span id="parse-res-country"></span>
+                    </div>
+                </div>
+
+                <div class="pt-3 border-t border-slate-800 flex justify-end space-x-2">
+                    <button type="button" onclick="closeModal('parseModal')" class="px-4 py-2 rounded-lg bg-slate-800 text-slate-300">Close</button>
+                    <button type="button" onclick="executeParseNotes()" id="parse-analyze-btn" class="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 font-medium">Analyze Text</button>
+                    <button type="button" onclick="saveParsedAsLead()" id="parse-save-btn" class="hidden px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-semibold">Save as Lead</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- CSV Batch Import Modal -->
+    <div id="importModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 modal-overlay overflow-y-auto">
+        <div class="bg-[#111827] border border-slate-700 rounded-xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h3 class="text-base font-bold text-white flex items-center space-x-2">
+                    <i data-lucide="upload-cloud" class="w-5 h-5 text-teal-400"></i>
+                    <span>Batch CSV Import</span>
+                </h3>
+                <button onclick="closeModal('importModal')" class="text-slate-400 hover:text-white">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <p class="text-xs text-slate-400">Upload a CSV file containing discussions. Required columns: <code class="text-cyan-400">url</code> and either <code class="text-cyan-400">title</code> or <code class="text-cyan-400">stated_problem</code>. Duplicate URLs are automatically skipped.</p>
+
+            <div class="border-2 border-dashed border-slate-700 hover:border-slate-500 rounded-lg p-6 text-center cursor-pointer transition" onclick="document.getElementById('csv-file-input').click()">
+                <i data-lucide="file-spreadsheet" class="w-10 h-10 mx-auto text-slate-400 mb-2"></i>
+                <span id="csv-file-label" class="text-xs text-slate-300 block font-medium">Click to select CSV file</span>
+                <span class="text-[10px] text-slate-500">Supports .csv (UTF-8)</span>
+                <input type="file" id="csv-file-input" accept=".csv" class="hidden" onchange="handleCsvFileSelected(event)">
+            </div>
+
+            <!-- Import Results Summary -->
+            <div id="csv-results-box" class="hidden bg-slate-900 p-3 rounded-lg border border-slate-800 text-xs space-y-2">
+                <div class="flex items-center justify-between font-semibold">
+                    <span class="text-white">Import Summary:</span>
+                    <span id="csv-summary-counts" class="text-emerald-400"></span>
+                </div>
+                <div id="csv-error-list" class="max-h-28 overflow-y-auto space-y-1 text-red-400 text-[11px]"></div>
+            </div>
+
+            <div class="pt-3 border-t border-slate-800 flex justify-end space-x-2 text-xs">
+                <button type="button" onclick="closeModal('importModal')" class="px-4 py-2 rounded-lg bg-slate-800 text-slate-300">Close</button>
+                <button type="button" onclick="uploadCsvFile()" id="csv-upload-btn" disabled class="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-semibold disabled:opacity-50">Upload & Import</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Daily Digest Report Modal -->
+    <div id="reportModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 modal-overlay overflow-y-auto">
+        <div class="bg-[#111827] border border-slate-700 rounded-xl max-w-3xl w-full max-h-[90vh] flex flex-col shadow-2xl">
+            <div class="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-900/60">
+                <div class="flex items-center space-x-2">
+                    <i data-lucide="mail-check" class="w-5 h-5 text-blue-400"></i>
+                    <h3 class="text-base font-bold text-white">Daily Lead Digest (09:00 AM Asia/Kolkata)</h3>
+                </div>
+                <button onclick="closeModal('reportModal')" class="text-slate-400 hover:text-white">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <div class="p-6 overflow-y-auto space-y-4 flex-1 text-xs">
+                <!-- Info Alert -->
+                <div class="p-3 rounded-lg bg-blue-950/40 border border-blue-800 text-blue-200 leading-relaxed">
+                    <strong>Scheduled Delivery Mechanism:</strong> Instead of relying on a free web server staying awake, the daily report is delivered via a Google Apps Script time-driven trigger attached directly to your <code>Auyvra Daily Leads</code> spreadsheet. Note that Google time-driven triggers execute within a standard time window (e.g. 8:00 AM – 9:00 AM or 9:00 AM – 10:00 AM).
+                </div>
+
+                <div class="flex items-center justify-between">
+                    <span class="font-bold text-white text-sm">Report Preview:</span>
+                    <button onclick="copyAppsScriptCode()" class="px-3 py-1 rounded bg-slate-800 hover:bg-slate-700 border border-slate-700 text-cyan-400 font-medium">
+                        Copy Apps Script Code
+                    </button>
+                </div>
+
+                <!-- Rendered Preview Frame -->
+                <div class="border border-slate-800 rounded-lg overflow-hidden bg-black">
+                    <iframe id="report-preview-frame" class="w-full h-80 border-0"></iframe>
+                </div>
+            </div>
+
+            <div class="p-4 border-t border-slate-800 bg-slate-900/80 flex items-center justify-between text-xs">
+                <span class="text-slate-400">Recipient: <strong class="text-white">{{ settings.alert_email_recipient }}</strong></span>
+                <button onclick="closeModal('reportModal')" class="px-4 py-2 rounded-lg bg-slate-800 text-slate-300">
+                    Done
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Google Sheets Setup & Sync Modal -->
+    <div id="sheetsModal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4 modal-overlay overflow-y-auto">
+        <div class="bg-[#111827] border border-slate-700 rounded-xl max-w-xl w-full p-6 space-y-4 shadow-2xl text-xs">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h3 class="text-base font-bold text-white flex items-center space-x-2">
+                    <i data-lucide="sheet" class="w-5 h-5 text-teal-400"></i>
+                    <span>Dedicated Google Sheets Integration</span>
+                </h3>
+                <button onclick="closeModal('sheetsModal')" class="text-slate-400 hover:text-white">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <div class="space-y-3 text-slate-300">
+                <p>Target Spreadsheet: <strong class="text-teal-400">Auyvra Daily Leads</strong></p>
+                <p>The system automatically selects or creates daily worksheets named by Asia/Kolkata date: e.g. <code class="text-cyan-400">Leads_2026-10-14</code>.</p>
+
+                <div class="bg-slate-900 p-3 rounded-lg border border-slate-800 space-y-2">
+                    <span class="font-bold text-white block">Required Setup Steps:</span>
+                    <ol class="list-decimal list-inside space-y-1 text-slate-400">
+                        <li>Create a Google Cloud Project and enable the <strong>Google Sheets API</strong> & <strong>Google Drive API</strong>.</li>
+                        <li>Create a <strong>Service Account</strong> and download its JSON key file.</li>
+                        <li>Create a Google Sheet named <strong>Auyvra Daily Leads</strong> and share it with the Service Account email as <strong>Editor</strong>.</li>
+                        <li>Add the path to <code class="text-slate-200">GOOGLE_SERVICE_ACCOUNT_FILE</code> or paste JSON string into <code class="text-slate-200">GOOGLE_SERVICE_ACCOUNT_JSON</code> in your <code class="text-slate-200">.env</code>.</li>
+                    </ol>
+                </div>
+            </div>
+
+            <div class="pt-3 border-t border-slate-800 flex justify-between items-center">
+                <span id="sheets-modal-status" class="text-slate-400">Status: Checking...</span>
+                <div class="space-x-2">
+                    <button type="button" onclick="closeModal('sheetsModal')" class="px-4 py-2 rounded-lg bg-slate-800 text-slate-300">Close</button>
+                    <button type="button" onclick="triggerSheetsSync()" class="px-4 py-2 rounded-lg bg-teal-600 hover:bg-teal-500 text-white font-semibold">Sync Leads Now</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container"></div>
+
+    <!-- App JavaScript -->
+    <script src="/static/js/dashboard.js"></script>
+</body>
+</html>

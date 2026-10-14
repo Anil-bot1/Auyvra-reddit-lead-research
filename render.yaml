@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: auyvra-lead-research
+    env: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: APP_NAME
+        value: "Auyvra Lead Research Dashboard"
+      - key: APP_ENV
+        value: production
+      - key: DATABASE_URL
+        value: "sqlite:///./auyvra_leads.db"
+      - key: REDDIT_INTEGRATION_ENABLED
+        value: "false"
+      - key: GOOGLE_SHEET_NAME
+        value: "Auyvra Daily Leads"
+      - key: TIMEZONE
+        value: "Asia/Kolkata"
+      - key: GOOGLE_SERVICE_ACCOUNT_JSON
+        sync: false

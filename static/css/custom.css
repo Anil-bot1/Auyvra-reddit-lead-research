@@ -1,0 +1,162 @@
+/* Auyvra Lead Research Dashboard - Custom SaaS Styling */
+
+:root {
+    --bg-main: #0B0F19;
+    --bg-card: #111827;
+    --bg-card-hover: #162032;
+    --border-color: #1E293B;
+    --accent-blue: #38BDF8;
+    --accent-teal: #2DD4BF;
+    --accent-indigo: #6366F1;
+    --status-qualified: #10B981;
+    --status-review: #F59E0B;
+    --status-disqualified: #EF4444;
+    --text-primary: #F8FAFC;
+    --text-secondary: #94A3B8;
+    --text-muted: #64748B;
+}
+
+body {
+    background-color: var(--bg-main);
+    color: var(--text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+::-webkit-scrollbar-track {
+    background: #0B0F19;
+}
+::-webkit-scrollbar-thumb {
+    background: #1E293B;
+    border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: #334155;
+}
+
+/* Glassmorphism Card Style */
+.card-saas {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s ease-in-out;
+}
+
+.card-saas:hover {
+    border-color: #334155;
+}
+
+/* Table styling */
+.saas-table {
+    border-collapse: separate;
+    border-spacing: 0;
+    width: 100%;
+}
+
+.saas-table th {
+    background-color: #0F172A;
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.saas-table td {
+    padding: 1rem;
+    border-bottom: 1px solid #1E293B;
+    font-size: 0.875rem;
+    vertical-align: middle;
+}
+
+.saas-table tr:hover td {
+    background-color: rgba(30, 41, 59, 0.4);
+}
+
+/* Score Pills */
+.score-pill-high {
+    background-color: rgba(16, 185, 129, 0.15);
+    color: #34D399;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+
+.score-pill-med {
+    background-color: rgba(245, 158, 11, 0.15);
+    color: #FBBF24;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+
+.score-pill-low {
+    background-color: rgba(239, 68, 68, 0.15);
+    color: #F87171;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+/* Status Badges */
+.badge-qualified {
+    background-color: rgba(16, 185, 129, 0.2);
+    color: #34D399;
+    border: 1px solid #059669;
+}
+
+.badge-review {
+    background-color: rgba(245, 158, 11, 0.2);
+    color: #FBBF24;
+    border: 1px solid #D97706;
+}
+
+.badge-disqualified {
+    background-color: rgba(239, 68, 68, 0.2);
+    color: #F87171;
+    border: 1px solid #DC2626;
+}
+
+.badge-contacted {
+    background-color: rgba(56, 189, 248, 0.2);
+    color: #38BDF8;
+    border: 1px solid #0284C7;
+}
+
+/* Toast Notifications */
+#toast-container {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.toast {
+    background-color: #1E293B;
+    color: #F8FAFC;
+    padding: 0.875rem 1.25rem;
+    border-radius: 0.5rem;
+    border-left: 4px solid var(--accent-blue);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+    font-size: 0.875rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    animation: slideIn 0.25s ease-out;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+/* Modal Overlay Animation */
+.modal-overlay {
+    backdrop-filter: blur(4px);
+    background-color: rgba(0, 0, 0, 0.75);
+}
